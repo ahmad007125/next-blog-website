@@ -44,7 +44,12 @@ router.post("/upload", requireAuth, upload.single("file"), async (req, res) => {
     // Convert to WebP regardless of input type
     await sharp(req.file.buffer).toFormat("webp", { quality: 85 }).toFile(outputPath);
 
-    const publicUrl = `${process.env.PUBLIC_BASE_URL || "http://localhost:4000"}/uploads/${path.basename(outputPath)}`;
+    // Build an absolute URL that works locally and on Vercel. Prefer env, else infer from request.
+    const forwardedProto = (req.headers["x-forwarded-proto"] || "").toString().split(",")[0]?.trim();
+    const forwardedHost = (req.headers["x-forwarded-host"] || req.headers.host || "").toString().split(",")[0]?.trim();
+    const originFromHeaders = forwardedHost ? `${forwardedProto || "https"}://${forwardedHost}` : "";
+    const baseUrl = process.env.PUBLIC_BASE_URL || originFromHeaders || `http://localhost:${process.env.PORT || 4000}`;
+    const publicUrl = `${baseUrl}/uploads/${path.basename(outputPath)}`;
     res.status(201).json({ url: publicUrl });
   } catch (e) {
     console.error(e);

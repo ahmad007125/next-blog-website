@@ -179,7 +179,7 @@ export default function AdminPage() {
                   if (!file) return;
                   try {
                     setUploading(true);
-                    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+                    const base = process.env.NEXT_PUBLIC_API_BASE_URL || "";
                     const fd = new FormData();
                     fd.append("file", file);
                     const token = localStorage.getItem("admin_token");
