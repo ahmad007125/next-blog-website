@@ -19,7 +19,7 @@ const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/blog";
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/uploads", (await import("express")).default.static(path.resolve(process.cwd(), "uploads")));
+app.use("/uploads", express.static(path.resolve(process.cwd(), "uploads")));
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, env: process.env.NODE_ENV || "development" });

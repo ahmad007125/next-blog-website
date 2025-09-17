@@ -1,5 +1,27 @@
 [
   {
+    "_id": "wczhzfntd4",
+    "slug": "post-4",
+    "title": "Post 4",
+    "category": "Business",
+    "description": "vxcvdvdfv",
+    "content": "dfvdfvdfvd",
+    "coverUrl": "http://localhost:4000/uploads/1758117755764-umiww76kub.webp",
+    "createdAt": "2025-09-17T13:17:10.623Z",
+    "updatedAt": "2025-09-17T14:02:40.474Z"
+  },
+  {
+    "_id": "zlf11y5uqld",
+    "slug": "wer",
+    "title": "Post3",
+    "category": "Tech",
+    "description": "erererer",
+    "content": "ferfererfer",
+    "coverUrl": "/uploads/1758030162581-hmze6bki1g.webp",
+    "createdAt": "2025-09-16T13:42:53.298Z",
+    "updatedAt": "2025-09-16T15:02:40.488Z"
+  },
+  {
     "_id": "4afo98qg9he",
     "slug": "post-2",
     "title": "Post 2",

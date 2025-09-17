@@ -16,18 +16,22 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+      const base = process.env.NEXT_PUBLIC_API_BASE_URL || "";
       const res = await fetch(`${base}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const txt = await res.text().catch(() => "");
+        throw new Error(txt || "Invalid credentials");
+      }
       const data = await res.json();
       localStorage.setItem("admin_token", data.token);
       router.push("/admin");
     } catch (err) {
-      alert("Login failed");
+      const message = err instanceof Error ? err.message : "Login failed";
+      alert(message);
     } finally {
       setLoading(false);
     }

@@ -3,9 +3,10 @@ import { getPosts } from "@/lib/api";
 
 export default async function CategoriesPage() {
   const posts = await getPosts();
-  const categories = Array.from(
-    new Set(posts.map((p: any) => (p.category || "General").toString()))
-  ).sort((a, b) => a.localeCompare(b));
+  const categoriesSet = new Set<string>(
+    posts.map((p: { category?: string }) => String(p.category || "General"))
+  );
+  const categories: string[] = Array.from(categoriesSet).sort((a: string, b: string) => a.localeCompare(b));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">

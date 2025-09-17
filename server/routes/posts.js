@@ -2,6 +2,7 @@ import { Router } from "express";
 import mongoose from "mongoose";
 import Post from "../models/Post.js";
 import { readPostsFromDisk, writePostsToDisk } from "../utils/store.js";
+import { requireAuth } from "../middleware/auth.js";
 
 // In-memory fallback when DB is not connected
 const memory = {
@@ -69,7 +70,7 @@ router.get("/:idOrSlug", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const { title, category, description, content } = req.body;
     if (!title || !category || !description || !content) {
@@ -102,7 +103,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     if (isDbConnected()) {
@@ -121,7 +122,7 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     if (isDbConnected()) {

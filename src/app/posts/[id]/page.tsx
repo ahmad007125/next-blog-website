@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 async function getPost(id: string) {
-  const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+  const base = process.env.NEXT_PUBLIC_API_BASE_URL || "";
   const res = await fetch(`${base}/api/posts/${id}`, { next: { revalidate: 15 } });
   if (!res.ok) return null;
   return res.json();

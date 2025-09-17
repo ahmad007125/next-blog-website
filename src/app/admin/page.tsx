@@ -18,6 +18,7 @@ type Post = {
   description?: string;
   content?: string;
   createdAt?: string;
+  coverUrl?: string | null;
 };
 
 export default function AdminPage() {
@@ -27,6 +28,7 @@ export default function AdminPage() {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Post | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [checkedAuth, setCheckedAuth] = useState(false);
 
   const categories = useMemo(() => ["General", "Tech", "Design", "Business"], []);
 
@@ -43,17 +45,25 @@ export default function AdminPage() {
       router.replace("/admin/login");
       return;
     }
+    setCheckedAuth(true);
     load();
-  }, []);
+  }, [router]);
 
   function openCreate() {
-    setEditing({ title: "", category: categories[0], content: "", description: "", coverUrl: "" } as any);
+    setEditing({ title: "", category: categories[0], content: "", description: "", coverUrl: "" });
     setOpen(true);
   }
 
   function openEdit(p: Post) {
     setEditing({ ...p });
     setOpen(true);
+  }
+
+  function handleLogout() {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("admin_token");
+    }
+    router.replace("/admin/login");
   }
 
   async function handleSubmit() {
@@ -64,7 +74,7 @@ export default function AdminPage() {
       category: editing.category,
       description: editing.description,
       content: editing.content,
-      coverUrl: (editing as any).coverUrl || undefined,
+      coverUrl: editing.coverUrl || undefined,
     };
     try {
       if (isNew) {
@@ -94,11 +104,16 @@ export default function AdminPage() {
     }
   }
 
+  if (!checkedAuth) return null;
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-semibold">Admin Dashboard</h1>
-        <Button onClick={openCreate}>Add Post</Button>
+        <div className="flex items-center gap-2">
+          <Button onClick={openCreate}>Add Post</Button>
+          <Button variant="outline" onClick={handleLogout}>Logout</Button>
+        </div>
       </div>
 
       <div className="rounded-md border overflow-x-auto">
@@ -167,10 +182,15 @@ export default function AdminPage() {
                     const base = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
                     const fd = new FormData();
                     fd.append("file", file);
-                    const res = await fetch(`${base}/api/media/upload`, { method: "POST", body: fd });
+                    const token = localStorage.getItem("admin_token");
+                    const res = await fetch(`${base}/api/media/upload`, {
+                      method: "POST",
+                      headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+                      body: fd,
+                    });
                     if (!res.ok) throw new Error(await res.text());
                     const data = await res.json();
-                    setEditing((s) => s ? { ...s, coverUrl: data.url } as any : s);
+                    setEditing((s) => s ? { ...s, coverUrl: data.url } : s);
                   } catch (err) {
                     alert("Image upload failed");
                   } finally {
@@ -178,8 +198,9 @@ export default function AdminPage() {
                   }
                 }}
               />
-              {(editing as any)?.coverUrl && (
-                <img src={(editing as any).coverUrl} alt="cover" className="mt-2 h-32 w-52 object-cover rounded" />
+              {editing?.coverUrl && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={editing.coverUrl} alt="cover" className="mt-2 h-32 w-52 object-cover rounded" />
               )}
               {uploading && <span className="text-xs text-muted-foreground">Uploading...</span>}
             </div>

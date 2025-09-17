@@ -3,6 +3,7 @@ import multer from "multer";
 import path from "path";
 import fs from "fs";
 import sharp from "sharp";
+import { requireAuth } from "../middleware/auth.js";
 
 const router = Router();
 
@@ -33,7 +34,7 @@ const upload = multer({
   },
 });
 
-router.post("/upload", upload.single("file"), async (req, res) => {
+router.post("/upload", requireAuth, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
 
@@ -43,7 +44,7 @@ router.post("/upload", upload.single("file"), async (req, res) => {
     // Convert to WebP regardless of input type
     await sharp(req.file.buffer).toFormat("webp", { quality: 85 }).toFile(outputPath);
 
-    const publicUrl = `/uploads/${path.basename(outputPath)}`;
+    const publicUrl = `${process.env.PUBLIC_BASE_URL || "http://localhost:4000"}/uploads/${path.basename(outputPath)}`;
     res.status(201).json({ url: publicUrl });
   } catch (e) {
     console.error(e);

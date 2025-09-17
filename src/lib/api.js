@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+// Prefer relative API path so Next.js can proxy to the Express server via rewrites.
+// If NEXT_PUBLIC_API_BASE_URL is set (e.g., production), use it instead.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 /**
  * Fetch all posts from the Express backend.
@@ -28,9 +30,10 @@ export async function getPosts() {
 }
 
 export async function createPost(body) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
   const res = await fetch(`${API_BASE_URL}/api/posts`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -38,9 +41,10 @@ export async function createPost(body) {
 }
 
 export async function updatePost(id, body) {
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
   const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: JSON.stringify(body),
   });
   if (!res.ok) throw new Error(await res.text());
@@ -48,9 +52,14 @@ export async function updatePost(id, body) {
 }
 
 export async function deletePost(id) {
-  const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, { method: "DELETE" });
+  const token = typeof window !== "undefined" ? localStorage.getItem("admin_token") : null;
+  const res = await fetch(`${API_BASE_URL}/api/posts/${id}`, { method: "DELETE", headers: { ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
+}
+
+export function getApiBaseUrl() {
+  return API_BASE_URL;
 }
 
 
